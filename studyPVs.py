@@ -1,7 +1,6 @@
 
 from matplotlib import pyplot as plt
-
-execfile('makePV.py')
+from makePV import makePV
 
 nPVs = 200
 
