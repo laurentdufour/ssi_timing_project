@@ -5,6 +5,7 @@ def getMomentum():
     theta = np.pi*np.random.random()
     mag = 10+15*np.random.random()
 
+    
     # random pid between pion,proton,kaon
     #masses = [0.1396,0.9383,0.4937]
     #index = np.random.random_integers(0,2)
