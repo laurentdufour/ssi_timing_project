@@ -3,11 +3,13 @@ import matplotlib.pyplot as plt
 
 import units
 
-resolution_velo = 1. * units.mm
-granularity_velo = 0.01 * units.mm
+velo = {"resolution": 1 * units.mm,
+        "granularity": 0.01 * units.mm,
+        "position_z": 0 * units.meter}
 
-resolution_timing_detector = 10 * units.ps
-granularity_timing_detector = 0.5 * units.ps
+timing_detector = {"resolution": 10 * units.ps,
+                   "granularity": 0.5 * units.ps,
+                   "position_z": 5 * units.meter}
 
 def get_velo_detector_response( txyz_at_detector ):
     '''
@@ -18,9 +20,9 @@ def get_velo_detector_response( txyz_at_detector ):
     '''
     true_position = txyz_at_detector[3]
 
-    measured_position_without_granularity = np.random.normal( true_position, resolution_velo )
+    measured_position_without_granularity = np.random.normal( true_position, velo["resolution"] )
 
-    return measured_position_without_granularity - measured_position_without_granularity % granularity_velo
+    return measured_position_without_granularity - measured_position_without_granularity % velo["granularity"]
 
 def get_timing_detector_response (txyz_at_detector):
     '''
@@ -30,9 +32,9 @@ def get_timing_detector_response (txyz_at_detector):
     '''
 
     true_time = txyz_at_detector[0]
-    measured_time_without_granularity = np.random.normal( true_time, resolution_timing_detector, 1 )[0]
+    measured_time_without_granularity = np.random.normal( true_time, timing_detector["resolution"], 1 )[0]
 
-    return measured_time_without_granularity - measured_time_without_granularity % granularity_timing_detector
+    return measured_time_without_granularity - measured_time_without_granularity % timing_detector["granularity"]
 
 def test_velo_detector_response( nTrials, tTrial, zTrial ):
     '''
@@ -69,10 +71,6 @@ def test_timing_detector_response( nTrials, tTrial, zTrial ):
 
     plt.bar(center, hist, align='center', width=width)
     plt.title("Measured timing (input time: %s)" % tTrial)
-
-    plt.plot(bins, 1/(resolution_timing_detector * np.sqrt(2 * np.pi)) *
-              np.exp( - (bins - tTrial)**2 / (2 * resolution_timing_detector**2) ),
-          linewidth=2, color='r')
 
     plt.show()
 
