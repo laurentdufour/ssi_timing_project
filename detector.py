@@ -3,10 +3,16 @@ import matplotlib.pyplot as plt
 
 import units
 
+"""
+ Settings for the VELO detector
+"""
 velo = {"resolution": 1 * units.mm,
         "granularity": 0.01 * units.mm,
         "position_z": 0 * units.meter}
 
+"""
+ Settings for the TIMING detector
+"""
 timing_detector = {"resolution": 10 * units.ps,
                    "granularity": 0.5 * units.ps,
                    "position_z": 5 * units.meter}
@@ -36,44 +42,26 @@ def get_timing_detector_response (txyz_at_detector):
 
     return measured_time_without_granularity - measured_time_without_granularity % timing_detector["granularity"]
 
-def test_velo_detector_response( nTrials, tTrial, zTrial ):
+def test_detector_response( detector_response_function, detector_name, n_trials, t_trial, z_trial ):
     '''
-    Runs the velo detector response 200 times and generates a 1D histogram
+    Runs the detector response 200 times and generates a 1D histogram
     with the response function.
-
-    As an input, puts the (t,x,y,z) at (50,0,0,7)
     '''
 
-    responseSet = [0] * nTrials
+    responseSet = [0] * n_trials
 
-    for tryId in range(0, nTrials):
-        responseSet[ tryId ] = get_velo_detector_response( [ tTrial, 0, 0, zTrial ] )
-
-    hist, bins = np.histogram(responseSet, bins=40)
-    width = 0.7 * (bins[1] - bins[0])
-    center = (bins[:-1] + bins[1:]) / 2
-
-    plt.bar(center, hist, align='center', width=width)
-    plt.title("Measured z (input position: %s)" % zTrial)
-
-    plt.show()
-
-
-def test_timing_detector_response( nTrials, tTrial, zTrial ):
-    responseSet = [0] * nTrials
-
-    for tryId in range(0, nTrials):
-        responseSet[ tryId ] = get_timing_detector_response( [ tTrial, 0, 0, zTrial ] )
+    for tryId in range(0, n_trials):
+        responseSet[ tryId ] = detector_response_function( [ t_trial, 0, 0, z_trial ] )
 
     hist, bins = np.histogram(responseSet, bins=40)
     width = 0.7 * (bins[1] - bins[0])
     center = (bins[:-1] + bins[1:]) / 2
 
     plt.bar(center, hist, align='center', width=width)
-    plt.title("Measured timing (input time: %s)" % tTrial)
+    plt.title( "Measured {} response [input position: ({}, 0, 0, {})]". format(detector_name, t_trial, z_trial) )
 
     plt.show()
 
 if __name__ == '__main__':
-    test_velo_detector_response( 3000, 5, 7)
-    test_timing_detector_response( 3000, 5, 7)
+    test_detector_response( get_velo_detector_response, "velo", 3000, 5, 7)
+    test_detector_response( get_timing_detector_response, "timing", 3000, 5, 7)
