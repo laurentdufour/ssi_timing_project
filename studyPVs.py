@@ -1,21 +1,20 @@
 
 from matplotlib import pyplot as plt
-
-execfile('python/makePV.py')
+from makePV import makePV
 
 nPVs = 200
 
 zList = []
-ctList = []
+tList = []
 for i in range(nPVs) :
-  #newpv = makePV(zctcorr = 1.)
+  #newpv = makePV(ztcorr = 1.)
   newpv = makePV()
   zList += [newpv[3]]
-  ctList += [newpv[0]]
+  tList += [newpv[0]]
 
-plt.scatter(zList,ctList)
+plt.scatter(zList,tList)
 plt.xlabel('PV z [mm]')
-plt.ylabel('PV ct [mm]')
+plt.ylabel('PV t [ns]')
 plt.show()
 
 
