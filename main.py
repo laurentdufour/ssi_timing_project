@@ -71,17 +71,18 @@ for pv in PVs :
 '''
 pltPV = plt
 pltPV.scatter(tList,zList)
-pltPV.ylabel('PV t [ns]')
+pltPV.ylabel('PV t [ps]')
 pltPV.xlabel('PV z [mm]')
 pltPV.show()
 '''
 # plot reconstructed PVs
 pltOTtime = plt
-pltOTtime.scatter([x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist], color='b')
-pltOTtime.scatter(reconPVmeantime, reconVELOmeanz, color='r')
-pltOTtime.scatter(tList, zList, color='g', marker='^')
-pltOTtime.xlabel('OT times [ns]')
-pltOTtime.ylabel('recon Zpos [mm]')
+SubParticles = pltOTtime.scatter([x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist], color='b')
+ReconstrucPV = pltOTtime.scatter(reconPVmeantime, reconVELOmeanz, color='r', marker='s')
+GeneratedPVs = pltOTtime.scatter(tList, zList, color='g', marker='^')
+pltOTtime.legend([GeneratedPVs, SubParticles, ReconstrucPV], ['Generated PV', 'Reconstructed Particle Origin', 'Reconstructed PV'])
+pltOTtime.xlabel('PV time [ps]')
+pltOTtime.ylabel('Z position [mm]')
 pltOTtime.show()
 
 
