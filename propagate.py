@@ -8,19 +8,25 @@ def propagate( zEnd, originVertex, momentum ):
 	requested z position, of course.
 	"""
         from math import sqrt
-	pT = sqrt(momentum[0]*momentum[0] + momentum[1]*momentum[1])
-        p = sqrt(momentum[0]*momentum[0] + momentum[1]*momentum[1] + momentum[2]*momentum[2])
+        #pT = sqrt(momentum[1]*momentum[1] + momentum[2]*momentum[2])
+        #p = sqrt(momentum[1]*momentum[1] + momentum[2]*momentum[2] + momentum[3]*momentum[3])
         
-	zToTravel = zEnd - originVertex[2]
+        zToTravel = zEnd - originVertex[3]
 
         from units import *
         from math import pow
-        c_speed = 3*pow(10,-4)*meter/ps
+        #c_speed = 3*pow(10,-4)*meter/ps
+        #c_speed = 1
 
-        velocity = [c_speed*momentum[i]/p for i in xrange(0,3)]
-        timeSpentTraveling = zToTravel/velocity[2]
+        #velocity = [c_speed*momentum[i]/p for i in xrange(1,3)]
+        #timeSpentTraveling = zToTravel/velocity[2]
+
+        timeSpentTraveling = zToTravel + originVertex[0]# / sqrt(momentum[3]**2)
         
-        xAtEnd = originVertex[0] + velocity[0] * timeSpentTraveling
-	yAtEnd = originVertex[1] + velocity[1] * timeSpentTraveling
+        #xAtEnd = originVertex[1] + velocity[1] * timeSpentTraveling
+        #yAtEnd = originVertex[2] + velocity[2] * timeSpentTraveling
 
-	return [ xAtEnd, yAtEnd, zEnd, timeSpentTraveling ]
+        xAtEnd = 0
+        yAtEnd = 0
+
+        return [timeSpentTraveling, xAtEnd, yAtEnd, zEnd ]

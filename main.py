@@ -5,7 +5,7 @@ import numpy as np
 from makePV import makePV
 from detector import get_timing_detector_response as timeDetector
 from detector import get_velo_detector_response as veloDetector
-from detector import timing_detector as velo
+from detector import timing_detector as timingDetector
 from propagate import propagate as prop
 from mom_generator import getMomentum as momentum
 
@@ -41,7 +41,7 @@ for pv in range(nPVs):
         veloZ = veloDetector(PVs[pv])
 
         #propagate the particle to the timing detector and get time response
-        [tOT, xOT, yOT, zOT] = prop(velo["position_z"],  PVs[pv], momentum())
+        [tOT, xOT, yOT, zOT] = prop(timingDetector["position_z"],  PVs[pv], momentum())
         OTt = timeDetector([tOT, xOT, yOT, zOT])
 
         #save detector response
@@ -55,15 +55,12 @@ for pv in range(nPVs):
 
     for i in range(nParticlesPerPV) :
 
-        PVtime = reconOTtime[pv][i] - (velo["position_z"] - reconVELOmeanz[pv])
+        PVtime = reconOTtime[pv][i] - (timingDetector["position_z"] - reconVELOmeanz[pv])
 
         #calculate back the production time of the vertex
         reconPVtime[pv].append( PVtime )
 
-        #save the mean time for the reconstructed PV
-        meantime += PVtime / nParticlesPerPV
-
-    reconPVmeantime.append( meantime )
+    reconPVmeantime.append( np.mean( reconPVtime[pv] ) )
 
 # plot PVs
 zList = []
