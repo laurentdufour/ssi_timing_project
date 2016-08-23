@@ -1,65 +1,91 @@
-from makePV import makePV
-from math import sqrt
-import detector
-import propagate
-import mom_generator
 from matplotlib import pyplot as plt
+from math import sqrt
+import numpy as np
+
+from makePV import makePV
+from detector import get_timing_detector_response as timeDetector
+from detector import get_velo_detector_response as veloDetector
+from detector import timing_detector as velo
+from propagate import propagate as prop
+from mom_generator import getMomentum as momentum
 
 nTrials = 1
-
-nPVs = 1
+nPVs = 200
 nParticlesPerPV = 50
 
-
-# generate PVs
-PVs = [0] * nPVs
-for i in range(nPVs) :
-  PVs[i] = makePV()
-
-#print PVs
-
-# generate particles
-particles = [ [0] * nParticlesPerPV] * nPVs
-
-reconOTtime = [ [0] * nParticlesPerPV] * nPVs
-reconVELOz = [ [0] * nParticlesPerPV] * nPVs
+# generate lists to store particles' information
+PVs = []
+reconOTtime = []
+reconPVtime = []
+reconPVmeantime = []
+reconVELOz = []
+reconVELOmeanz = []
 
 for pv in range(nPVs):
 
+    # generate PVs
+    PVs.append( makePV() )
+
+    #add blank list for each PV for the timing and spatial response
+    reconOTtime.append( [] )
+    reconPVtime.append( [] )
+    reconVELOz.append( [] )
+
+    #calculate meantime and mean position of all PVs
+    meantime = 0
+    #meanz = 0
+
     for i in range(nParticlesPerPV) :
 
-        veloZ = detector.get_velo_detector_response(PVs[pv])
+        #get vertex locator response for determining z position of PV
+        veloZ = veloDetector(PVs[pv])
 
-        #print [veloZ, PVs[pv][3]]
+        #propagate the particle to the timing detector and get time response
+        [tOT, xOT, yOT, zOT] = prop(velo["position_z"],  PVs[pv], momentum())
+        OTt = timeDetector([tOT, xOT, yOT, zOT])
 
-        [tOT, xOT, yOT, zOT] = propagate.propagate(detector.timing_detector["position_z"],  PVs[pv], mom_generator.getMomentum())
-        OTt = detector.get_timing_detector_response([tOT, xOT, yOT, zOT])
-        #print OTt
+        #save detector response
+        reconOTtime[pv].append( OTt )
+        reconVELOz[pv].append( veloZ )
 
-        reconOTtime[pv][i] = OTt
-        reconVELOz[pv][i] = veloZ
+        #save the mean zPosition of the vertex
+        #meanz += veloZ / nParticlesPerPV
+
+    reconVELOmeanz.append( np.mean( reconVELOz[pv] ) )
+
+    for i in range(nParticlesPerPV) :
+
+        PVtime = reconOTtime[pv][i] - (velo["position_z"] - reconVELOmeanz[pv])
+
+        #calculate back the production time of the vertex
+        reconPVtime[pv].append( PVtime )
+
+        #save the mean time for the reconstructed PV
+        meantime += PVtime / nParticlesPerPV
+
+    reconPVmeantime.append( meantime )
 
 # plot PVs
-'''
 zList = []
 tList = []
 for pv in PVs :
   zList += [pv[3]]
   tList += [pv[0]]
+'''
 pltPV = plt
-pltPV.scatter(zList,tList)
-pltPV.xlabel('PV z [mm]')
+pltPV.scatter(tList,zList)
 pltPV.ylabel('PV t [ns]')
+pltPV.xlabel('PV z [mm]')
 pltPV.show()
 '''
-
 # plot reconstructed PVs
 pltOTtime = plt
-print [x for sublist in reconOTtime for x in sublist]
-
-pltOTtime.scatter([x for sublist in reconOTtime for x in sublist], [y for sublist in reconVELOz for y in sublist])
-#pltOTtime.scatter(reconOTtime, reconVELOz)
+pltOTtime.scatter([x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist], color='b')
+pltOTtime.scatter(reconPVmeantime, reconVELOmeanz, color='r')
+pltOTtime.scatter(tList, zList, color='g', marker='^')
 pltOTtime.xlabel('OT times [ns]')
 pltOTtime.ylabel('recon Zpos [mm]')
 pltOTtime.show()
+
+
 
