@@ -13,7 +13,7 @@ from mom_generator import getMomentum as momentum
 nTrials = 20
 nPVs = 200
 nParticlesPerPV = 15
-doPlot = False
+doPlot = True
 
 
 
@@ -130,14 +130,34 @@ def doStuff(nPVs, nParticlesPerPV, doPlot) :
   
   # plot reconstructed PVs
   if doPlot :
-    pltOTtime = plt
-    SubParticles = pltOTtime.scatter([x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist], color='b')
-    ReconstrucPV = pltOTtime.scatter(reconPVmeantime, reconVELOmeanz, color='r', marker='s')
-    GeneratedPVs = pltOTtime.scatter(tList, zList, color='g', marker='^')
-    pltOTtime.legend([GeneratedPVs, SubParticles, ReconstrucPV], ['Generated PV', 'Reconstructed Particle Origin', 'Reconstructed PV'])
-    pltOTtime.xlabel('PV time [ps]')
-    pltOTtime.ylabel('Z position [mm]')
-    pltOTtime.show()
+    plt2DtimeZpos = plt
+    SubParticles = plt2DtimeZpos.scatter([x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist], color='b')
+    ReconstrucPV = plt2DtimeZpos.scatter(reconPVmeantime, reconVELOmeanz, color='r', marker='s')
+    GeneratedPVs = plt2DtimeZpos.scatter(tList, zList, color='g', marker='^')
+    plt2DtimeZpos.legend([GeneratedPVs, SubParticles, ReconstrucPV], ['Generated PV', 'Reconstructed Particle Origin', 'Reconstructed PV'])
+    plt2DtimeZpos.xlabel('PV time [ps]')
+    plt2DtimeZpos.ylabel('Z position [mm]')
+    plt2DtimeZpos.xlim(-700, 700)
+    plt2DtimeZpos.ylim(-200, 200)
+    plt2DtimeZpos.title('2D map of {} generated and reconstructed PVs '.format(nPVs) )
+    plt2DtimeZpos.show()
+
+    pltZPosDistribution = plt
+    pltZPosDistribution.hist([x for sublist in reconVELOz for x in sublist], 50, histtype='stepfilled', facecolor='g', alpha=0.75)
+    pltZPosDistribution.xlabel('PV Z position [mm]')
+    pltZPosDistribution.ylabel('counts')
+    pltZPosDistribution.xlim(-200, 200)
+    plt2DtimeZpos.title('Spatial distribution of {} reconstructed PVs with {} particles / PV '.format(nPVs, nParticlesPerPV) )
+    pltZPosDistribution.show()
+
+    pltTimeDistribution = plt
+    pltTimeDistribution.hist([x for sublist in reconPVtime for x in sublist], 50, histtype='stepfilled', facecolor='b', alpha=0.75)
+    pltTimeDistribution.xlabel('PV time [ps]')
+    pltTimeDistribution.ylabel('counts')
+    pltTimeDistribution.xlim(-700, 700)
+    plt2DtimeZpos.title('Time distribution of {} reconstructed PVs with {} particles / PV '.format(nPVs, nParticlesPerPV) )
+    pltTimeDistribution.show()
+
 
 
   #xandylist = [[x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist]]
@@ -146,35 +166,35 @@ def doStuff(nPVs, nParticlesPerPV, doPlot) :
 
 
 
+def ToyStudy(nTrials):
 
+    myList = []
+    print "==> For nPVs = " + str(nPVs) + ", nParticlesPerPV = " + str(nParticlesPerPV) + ", nTrials = " + str(nTrials)
+    for i in range(nTrials) :
+      print " - Toy " + str(i)
+      myList += [doStuff(nPVs, nParticlesPerPV, doPlot)]
 
-myList = []
-print "==> For nPVs = " + str(nPVs) + ", nParticlesPerPV = " + str(nParticlesPerPV) + ", nTrials = " + str(nTrials)
-for i in range(nTrials) :
-  print " - Toy " + str(i)
-  myList += [doStuff(nPVs, nParticlesPerPV, doPlot)]
+    myListC = [
+        [myList[i][0] for i in range(len(myList))],
+        [myList[i][1] for i in range(len(myList))],
+        [myList[i][2] for i in range(len(myList))],
+        [myList[i][3] for i in range(len(myList))],
+        [myList[i][4] for i in range(len(myList))],
+        [myList[i][5] for i in range(len(myList))] ]
 
-myListC = [ 
-    [myList[i][0] for i in range(len(myList))],
-    [myList[i][1] for i in range(len(myList))],
-    [myList[i][2] for i in range(len(myList))],
-    [myList[i][3] for i in range(len(myList))],
-    [myList[i][4] for i in range(len(myList))],
-    [myList[i][5] for i in range(len(myList))] ]
+    totalDenominator = nPVs * nParticlesPerPV
+    averages = [ np.mean( myListC[i]) / totalDenominator for i in range(6) ]
+    stddevs  = [ np.std(  myListC[i]) / totalDenominator for i in range(6) ]
 
-totalDenominator = nPVs * nParticlesPerPV
-averages = [ np.mean( myListC[i]) / totalDenominator for i in range(6) ]
-stddevs  = [ np.std(  myListC[i]) / totalDenominator for i in range(6) ]
+    print "==> For nPVs = " + str(nPVs) + ", nParticlesPerPV = " + str(nParticlesPerPV) + ", nTrials = " + str(nTrials)
+    print "nWrong_Tonly     = ( %.5f +- %.5f ) %%" %(averages[0]*100., stddevs[0]*100.)
+    print "nWrong_Zonly     = ( %.5f +- %.5f ) %%" %(averages[1]*100., stddevs[1]*100.)
+    print "nWrong_TZ        = ( %.5f +- %.5f ) %%" %(averages[2]*100., stddevs[2]*100.)
+    print " == "
+    print "nWrongRECO_Tonly = ( %.5f +- %.5f ) %%" %(averages[3]*100., stddevs[3]*100.)
+    print "nWrongRECO_Zonly = ( %.5f +- %.5f ) %%" %(averages[4]*100., stddevs[4]*100.)
+    print "nWrongRECO_TZ    = ( %.5f +- %.5f ) %%" %(averages[5]*100., stddevs[5]*100.)
 
-print "==> For nPVs = " + str(nPVs) + ", nParticlesPerPV = " + str(nParticlesPerPV) + ", nTrials = " + str(nTrials)
-print "nWrong_Tonly     = ( %.5f +- %.5f ) %%" %(averages[0]*100., stddevs[0]*100.)
-print "nWrong_Zonly     = ( %.5f +- %.5f ) %%" %(averages[1]*100., stddevs[1]*100.)
-print "nWrong_TZ        = ( %.5f +- %.5f ) %%" %(averages[2]*100., stddevs[2]*100.)
-print " == "
-print "nWrongRECO_Tonly = ( %.5f +- %.5f ) %%" %(averages[3]*100., stddevs[3]*100.)
-print "nWrongRECO_Zonly = ( %.5f +- %.5f ) %%" %(averages[4]*100., stddevs[4]*100.)
-print "nWrongRECO_TZ    = ( %.5f +- %.5f ) %%" %(averages[5]*100., stddevs[5]*100.)
-
-
+#ToyStudy(nTrials)
 
 
