@@ -9,12 +9,18 @@ from detector import timing_detector as timingDetector
 from propagate import propagate as prop
 from mom_generator import getMomentum as momentum
 
-nTrials = 1
+nTrials = 20
 nPVs = 50
 nParticlesPerPV = 15
+doPlot = False
 
 
-def main() :
+
+
+
+
+
+def doStuff(nPVs, nParticlesPerPV, doPlot) :
 
   # generate lists to store particles' information
   PVs = []
@@ -79,16 +85,6 @@ def main() :
   pltPV.show()
   '''
 
-  # plot reconstructed PVs
-  if(False) :
-    pltOTtime = plt
-    SubParticles = pltOTtime.scatter([x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist], color='b')
-    ReconstrucPV = pltOTtime.scatter(reconPVmeantime, reconVELOmeanz, color='r', marker='s')
-    GeneratedPVs = pltOTtime.scatter(tList, zList, color='g', marker='^')
-    pltOTtime.legend([GeneratedPVs, SubParticles, ReconstrucPV], ['Generated PV', 'Reconstructed Particle Origin', 'Reconstructed PV'])
-    pltOTtime.xlabel('PV time [ps]')
-    pltOTtime.ylabel('Z position [mm]')
-    pltOTtime.show()
 
 
 
@@ -124,20 +120,63 @@ def main() :
       if closestRECOPV_TZ+0.0001 < sqrt( (reconPVmeantime[pv] - pTime)**2 + (reconVELOmeanz[pv] - pPos)**2) : nWrongRECO_TZ += 1
 
   totalParticles = nPVs * nParticlesPerPV
-  print " == "
-  print "nWrong_Tonly = " + str(nWrong_Tonly) + " / " + str(totalParticles) + " = " + str(float(nWrong_Tonly) / float(totalParticles) * 100.) + " %"
-  print "nWrong_Zonly = " + str(nWrong_Zonly) + " / " + str(totalParticles) + " = " + str(float(nWrong_Zonly) / float(totalParticles) * 100.) + " %"
-  print "nWrong_TZ = " + str(nWrong_TZ) + " / " + str(totalParticles) + " = " + str(float(nWrong_TZ) / float(totalParticles) * 100.) + " %"
-  print " == "
-  print "nWrongRECO_Tonly = " + str(nWrongRECO_Tonly) + " / " + str(totalParticles) + " = " + str(float(nWrongRECO_Tonly) / float(totalParticles) * 100.) + " %"
-  print "nWrongRECO_Zonly = " + str(nWrongRECO_Zonly) + " / " + str(totalParticles) + " = " + str(float(nWrongRECO_Zonly) / float(totalParticles) * 100.) + " %"
-  print "nWrongRECO_TZ = " + str(nWrongRECO_TZ) + " / " + str(totalParticles) + " = " + str(float(nWrongRECO_TZ) / float(totalParticles) * 100.) + " %"
+  #print " == "
+  #print "nWrong_Tonly = " + str(nWrong_Tonly) + " / " + str(totalParticles) + " = " + str(float(nWrong_Tonly) / float(totalParticles) * 100.) + " %"
+  #print "nWrong_Zonly = " + str(nWrong_Zonly) + " / " + str(totalParticles) + " = " + str(float(nWrong_Zonly) / float(totalParticles) * 100.) + " %"
+  #print "nWrong_TZ = " + str(nWrong_TZ) + " / " + str(totalParticles) + " = " + str(float(nWrong_TZ) / float(totalParticles) * 100.) + " %"
+  #print " == "
+  #print "nWrongRECO_Tonly = " + str(nWrongRECO_Tonly) + " / " + str(totalParticles) + " = " + str(float(nWrongRECO_Tonly) / float(totalParticles) * 100.) + " %"
+  #print "nWrongRECO_Zonly = " + str(nWrongRECO_Zonly) + " / " + str(totalParticles) + " = " + str(float(nWrongRECO_Zonly) / float(totalParticles) * 100.) + " %"
+  #print "nWrongRECO_TZ = " + str(nWrongRECO_TZ) + " / " + str(totalParticles) + " = " + str(float(nWrongRECO_TZ) / float(totalParticles) * 100.) + " %"
       
   
+  # plot reconstructed PVs
+  if doPlot :
+    pltOTtime = plt
+    SubParticles = pltOTtime.scatter([x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist], color='b')
+    ReconstrucPV = pltOTtime.scatter(reconPVmeantime, reconVELOmeanz, color='r', marker='s')
+    GeneratedPVs = pltOTtime.scatter(tList, zList, color='g', marker='^')
+    pltOTtime.legend([GeneratedPVs, SubParticles, ReconstrucPV], ['Generated PV', 'Reconstructed Particle Origin', 'Reconstructed PV'])
+    pltOTtime.xlabel('PV time [ps]')
+    pltOTtime.ylabel('Z position [mm]')
+    pltOTtime.show()
 
 
-  xandylist = [[x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist]]
-  return [ [xandylist[0][i],xandylist[1][i]] for i in range(totalParticles) ]
+  #xandylist = [[x for sublist in reconPVtime for x in sublist], [y for sublist in reconVELOz for y in sublist]]
+  #return [ [xandylist[0][i],xandylist[1][i]] for i in range(totalParticles) ]
+  return [nWrong_Tonly, nWrong_Zonly, nWrong_TZ, nWrongRECO_Tonly, nWrongRECO_Zonly, nWrongRECO_TZ]
 
 
-main()
+
+
+
+myList = []
+print "==> For nPVs = " + str(nPVs) + ", nParticlesPerPV = " + str(nParticlesPerPV) + ", nTrials = " + str(nTrials)
+for i in range(nTrials) :
+  print " - Toy " + str(i)
+  myList += [doStuff(nPVs, nParticlesPerPV, doPlot)]
+
+myListC = [ 
+    [myList[i][0] for i in range(len(myList))],
+    [myList[i][1] for i in range(len(myList))],
+    [myList[i][2] for i in range(len(myList))],
+    [myList[i][3] for i in range(len(myList))],
+    [myList[i][4] for i in range(len(myList))],
+    [myList[i][5] for i in range(len(myList))] ]
+
+totalDenominator = nPVs * nParticlesPerPV
+averages = [ np.mean( myListC[i]) / totalDenominator for i in range(6) ]
+stddevs  = [ np.std(  myListC[i]) / totalDenominator for i in range(6) ]
+
+print "==> For nPVs = " + str(nPVs) + ", nParticlesPerPV = " + str(nParticlesPerPV) + ", nTrials = " + str(nTrials)
+print "nWrong_Tonly     = ( %.5f +- %.5f ) %%" %(averages[0]*100., stddevs[0]*100.)
+print "nWrong_Zonly     = ( %.5f +- %.5f ) %%" %(averages[1]*100., stddevs[1]*100.)
+print "nWrong_TZ        = ( %.5f +- %.5f ) %%" %(averages[2]*100., stddevs[2]*100.)
+print " == "
+print "nWrongRECO_Tonly = ( %.5f +- %.5f ) %%" %(averages[3]*100., stddevs[3]*100.)
+print "nWrongRECO_Zonly = ( %.5f +- %.5f ) %%" %(averages[4]*100., stddevs[4]*100.)
+print "nWrongRECO_TZ    = ( %.5f +- %.5f ) %%" %(averages[5]*100., stddevs[5]*100.)
+
+
+
+
