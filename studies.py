@@ -1,19 +1,13 @@
 from matplotlib import pyplot as plt
 from math import sqrt
-import numpy as np
-
-from makePV import makePV
-from detector import get_timing_detector_response as timeDetector
-from detector import get_velo_detector_response as veloDetector
-from detector import timing_detector as timingDetector
-from propagate import propagate as prop
-from mom_generator import getMomentum as momentum
+import event_generator
 
 nTrials = 20
 nPVs = 50
 nParticlesPerPV = 15
 doPlot = False
 
+<<<<<<< HEAD:studies.py
 
 
 
@@ -77,6 +71,18 @@ def doStuff(nPVs, nParticlesPerPV, doPlot) :
   for pv in PVs :
     zList += [pv[3]]
     tList += [pv[0]]
+=======
+def main() :
+  event = event_generator.generate_event(nPVs, nParticlesPerPV)
+  
+  reconPVtime = event["reconPVtime"]
+  reconVELOz = event["reconVELOz"]
+  reconPVmeantime = event["reconPVmeantime"]
+  reconVELOmeanz = event["reconVELOmeanz"]
+  tList = event["tList"]
+  zList = event["zList"]
+  PVs = event["PVs"]
+>>>>>>> 1d5ce8e406725adf2f350c5f2dfcfc59d659fe88:main.py
   '''
   pltPV = plt
   pltPV.scatter(tList,zList)
